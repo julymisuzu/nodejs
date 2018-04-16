@@ -6,9 +6,11 @@ var fs = require('fs');
 
 http.createServer(function(request, response) {
 
-  fs.readFile('test.html', function(err, data) {
-    response.write(data);
-    response.end();
-  });
+  fs.rename('test.html', 'testing2.html', function(error) {
+    if(error) throw error;
+    console.log('File Renamed!');
+  })
+
+  response.end();
 
 }).listen(8080);
