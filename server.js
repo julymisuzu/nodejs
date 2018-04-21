@@ -20,8 +20,8 @@ var myMiddleware = require('./myMiddleware');
 /**************/
 
 /*** Using template ***/
-  app.set('view engine', 'pug');
   app.set('views', './views');
+  app.set('view engine', 'pug');
 
   app.get('/pugView', function(request, response) {
     response.render('index', { title: 'Hey Pug', message: 'Hello there!' });
@@ -44,7 +44,6 @@ var myMiddleware = require('./myMiddleware');
     response.render('myEngine', { title: 'Testing Engine', message: 'Hello My Engine!' });
   });
 /**********************/
-
 
 /*** Middlware Requests ***/
   var requestTime = function(request, response, next) {
