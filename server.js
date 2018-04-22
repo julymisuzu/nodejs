@@ -3,15 +3,14 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var fs = require('fs');
+var path = require('path');
+
+var jsonUrl = './json/books.json';
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 // parse application/json
 app.use(bodyParser.json());
-
-/*** Imports ***/
-var birds = require('./birds');
-var myMiddleware = require('./myMiddleware');
 
 /*** Server ***/
   app.listen(8080, function() {
@@ -19,76 +18,59 @@ var myMiddleware = require('./myMiddleware');
   });
 /**************/
 
-/*** Using template ***/
-  app.set('views', './views');
-  app.set('view engine', 'pug');
+// use the static javascript files and create a fake url
+app.use('/javascript', express.static('javascript'));
+app.use('/foundation', express.static('node_modules/foundation-sites/dist'));
+// define the template files
+app.set('views', './views');
+// define the type of the template files
+app.set('view engine', 'pug');
 
-  app.get('/pugView', function(request, response) {
-    response.render('index', { title: 'Hey Pug', message: 'Hello there!' });
+
+app.get('/', function(request, response) {
+  response.render('index');
+});
+
+app.get('/books', function(request, response) {
+  fs.readFile(jsonUrl, function(error, data) {
+    if(error) return response.send('No books found.');
+    response.send(data);
   });
+});
 
-  /*** Creating my own template engine ***/
-  app.engine('ntl', function(filePath, options, callback) {
-    fs.readFile(filePath, function(error, content) {
-      if(error)
-        return callback(error);
-      var rendered = content.toString().replace('#title#', '<title>'+options.title+'</title>')
-                    .replace('#message#', '<h1>'+options.message+'</h1>');
-      return callback(null, rendered);
+app.post('/books/create', function(request, response) {
+  fs.readFile(jsonUrl, function(error, data) {
+    if(error) return response.send('No books found.');
+    var booksList = JSON.parse(data);
+
+    booksList.livros.push({ name: request.body.book, author: request.body.author });
+
+    console.log(booksList);
+    fs.writeFile(jsonUrl, JSON.stringify(booksList), function(error) {
+      if(error) return response.send('Not writing possibility');
+      console.log('The books list has been updated');
+      response.end();
     });
-  });
+  })
+});
 
-  app.set('view engine', 'ntl');
+app.post('/books/remove', function(request, response) {
+  fs.readFile(jsonUrl, function(error, data) {
+    if(error) return response.send('No books found.');
 
-  app.get('/myTemplateEngine', function(request, response) {
-    response.render('myEngine', { title: 'Testing Engine', message: 'Hello My Engine!' });
-  });
-/**********************/
+    
 
-/*** Middlware Requests ***/
-  var requestTime = function(request, response, next) {
-    console.log('Middleware requestTime');
-    request.requestTime = Date.now();
-    next();
-  }
-  app.use(requestTime);
+    var booksList = JSON.parse(data);
+    var newBooksList = booksList.livros.filter(function(item) {
+      return item.id != request.body.bookId;
+    });
 
-  app.use(myMiddleware({option1: "firstOption", option2: "secondOption"}));
-/**************************/
+    booksList.livros = newBooksList;
 
-/*** Requests ***/
-  app.get('/', function(request, response) {
-    console.log('app.get(/)');
-    response.send('Hello World! '+request.requestTime);
-  });
-
-  app.use('/user/create', function(request, response) {
-    console.log('app.use(/user/create)');
-    response.send('You are creating a user');
-  });
-
-  app.put('/user', function(request, response) {
-    console.log('app.put(/user)');
-    response.send('You are in the user page');
-  });
-
-  app.get('/user/:userId/book/:bookId', function(request, response) {
-    console.log('app.get(/user/:userId/book/:bookId)');
-    response.send(request.params);
-  });
-
-  app.get('/flights/:fromId-:toId', function(request, response) {
-    console.log('app.get(/flights/:fromId-:toId)');
-    response.send('Your are going from: '+request.params.fromId+' to '+request.params.toId);
-  });
-
-  app.use('/birds', birds);
-  app.use('/birds/about', birds);
-/****************/
-
-// This MUST be the last command
-/*** Handling Errors ***/
-  app.use(function(request, response, next) {
-    response.status(404).send('Not found!');
-  });
-/***********************/
+    fs.writeFile(jsonUrl, JSON.stringify(booksList), function(error) {
+      if(error) return response.send('Not writing possibility');
+      console.log('The books list has been updated');
+      response.end();
+    });
+  })
+});

@@ -1,5 +1,19 @@
-html
-  head
-    title= title
-  body
-    h1= message
+extends layout
+
+block content
+  div.grid-container
+    div(class="medium-12 cell")
+      h1 Books List
+    form(action="/books/create", method="post")
+      div(class="grid-x grid-padding-x")
+        div(class="medium-6 cell")
+          label Book Name
+            input#bookName(type="text", placeholder="Book Name")
+        div(class="medium-6 cell")
+          label Book Author
+            input#authorName(type="text", placeholder="Author Name")
+        div(class="medium-12 cell")
+          input#submitForm(type="submit", value="Add New Book", class="button")
+    //- button#orderByAuthor.button Order By Author
+    hr
+    ul#results
