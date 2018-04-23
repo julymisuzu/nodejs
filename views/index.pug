@@ -2,9 +2,17 @@ extends layout
 
 block content
   div.grid-container
+    div#successCallout(class="callout success", data-closable="slide-out-up", style="display: none;")
+      h5 Success!
+      span#successMessage
+    div#errorCallout(class="callout alert", data-closable="slide-out-up", style="display: none;")
+      h5 Error!
+      span#errorMessage
     div(class="medium-12 cell")
       h1 Books List
-    form(action="/books/create", method="post")
+    form#createForm(action="/books/create", method="post")
+      input#formType(type="hidden")
+      input#bookId(type="hidden")
       div(class="grid-x grid-padding-x")
         div(class="medium-6 cell")
           label Book Name
@@ -14,6 +22,7 @@ block content
             input#authorName(type="text", placeholder="Author Name")
         div(class="medium-12 cell")
           input#submitForm(type="submit", value="Add New Book", class="button")
-    //- button#orderByAuthor.button Order By Author
+          input#saveEdit(type="submit", value="Save", class="button", style="display: none;")
+          input#cancelEdit(type="button", value="Cancel", class="button alert", style="display: none;")
     hr
     ul#results
