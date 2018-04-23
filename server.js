@@ -22,7 +22,6 @@ app.listen(8080, function() {
   console.log('App listening on port 8080!');
 });
 
-
 // use the static javascript files and create a fake url
 app.use('/javascript', express.static('javascript'));
 app.use('/foundation', express.static('node_modules/foundation-sites/dist'));

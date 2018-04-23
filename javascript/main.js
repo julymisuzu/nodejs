@@ -72,17 +72,9 @@ $(function() {
         h4 = $("<h4 />", { text: item.name, class: "medium-12 cell" })[0];
         p = $("<p />", { text: item.author, class: "medium-12 cell" })[0];
 
-        editForm = $('<form />', { name: 'editForm-'+key, 
-                                   class: 'editForm', 
-                                   action: '/books/edit', 
-                                   method: 'post' });
-        editFormBook = $('<input />', { type: 'text', name: 'editBookName', value: item.name })[0];
-        editFormAuthor = $('<input />', { type: 'text', name: 'editAuthorName', value: item.author })[0];
-        editFormSave = $('<input />', { type: 'submit', value: 'Save', class: 'button' })[0];
-
         edit = $("<a />", { text: "Edit", 
                             class: "medium-2 cell", 
-                            "data-id": key, 
+                            "data-id": item.id, 
                             "data-book": item.name, 
                             "data-author": item.author });
         edit.on('click', function(key) {
@@ -109,25 +101,8 @@ $(function() {
           });
         });
 
-        editForm.on('submit', function(formData) {
-          formData.preventDefault();
-      
-          var bookName = formData.target[0].value;
-          var authorName = formData.target[1].value;
-
-          if(bookName !== "" && authorName !== "") {
-            var books = { book: bookName, author: authorName };
-            $.post('/books/edit', books).success(getBooksList);
-          }
-        });
-
-        $(editForm).append(editFormBook)
-                   .append(editFormAuthor)
-                   .append(editFormSave)
-                   .hide();
         $(li[key]).append(h4)
                   .append(p)
-                  .append(editForm)
                   .append(edit)
                   .append(remove)
                   .append($("<hr />", { class: "medium-12" })[0]);

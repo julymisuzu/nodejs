@@ -1,29 +1,15 @@
-var fs = require('fs');
+var mysql = require('mysql');
+var connection = require('./connection.js');
 var jsonUrl = './json/books.json';
 
 module.exports = function(request, response) {
-  fs.readFile(jsonUrl, function(error, data) {
-    if(error) {
-      console.log('[BOOKS EDIT READ] Error - '+error);
-      response.writeHead(404, {'Content-Type': 'text/html'});
-      return response.end('An inexpected error occurred.');
-    }
+  var id = request.body.id;
+  var book = request.body.book;
+  var author = request.body.author;
+  var query = 'UPDATE book SET name = "'+ book +'", author = "'+ author + '" WHERE id = '+id;
 
-    var booksList = JSON.parse(data);
-
-    booksList.livros[request.body.id].name = request.body.book;
-    booksList.livros[request.body.id].author = request.body.author;
-
-    console.log(booksList);
-    fs.writeFile(jsonUrl, JSON.stringify(booksList), function(error) {
-      if(error) {
-        console.log('[BOOKS EDIT WRITE] Error - '+error);
-        response.writeHead(404, {'Content-Type': 'text/html'});
-        return response.end('An inexpected error occurred.');
-      }
-
-      console.log('The books list has been updated');
-      response.end();
-    });
-  })
+  connection.query(query, function(error, rows, fields) {
+    if(error) response.end(error);
+    response.end();
+  });
 };

@@ -1,27 +1,22 @@
-var fs = require('fs');
+var mysql = require('mysql');
+var connection = require('./connection.js');
 var jsonUrl = './json/books.json';
 
 module.exports = function(request, response) {
-  fs.readFile(jsonUrl, function(error, data) {
-    if(error) {
-      console.log('[BOOKS CREATE READ] Error - '+error);
-      response.writeHead(404, {'Content-Type': 'text/html'});
-      return response.end('An inexpected error occurred.');
-    }
+  var id = request.body.id;
+  var book = request.body.book;
+  var author = request.body.author;
 
-    var booksList = JSON.parse(data);
-    var newBookId = booksList.livros[booksList.livros.length - 1].id + 1;
+  var querySearch = 'SELECT MAX(id) as id FROM book';
+  connection.query(querySearch, function(error, rows, fields) {
 
-    booksList.livros.push({ id: newBookId, name: request.body.book, author: request.body.author });
-
-    fs.writeFile(jsonUrl, JSON.stringify(booksList), function(error) {
-      if(error) {
-        console.log('[BOOKS CREATE WRITE] Error - '+error);
-        response.writeHead(404, {'Content-Type': 'text/html'});
-        return response.end('An inexpected error occurred.');
-      }
-      console.log('The books list has been updated');
+    // The Id was created this way just to test nodejs
+    var newBookId = rows[0].id + 1;
+    var query = 'INSERT INTO book (id, name, author) VALUES ('+newBookId+', "'+ book +'", "'+ author + '")';
+  
+    connection.query(query, function(error, rows, fields) {
+      if(error) response.end(error);
       response.end();
     });
   });
-}
+};

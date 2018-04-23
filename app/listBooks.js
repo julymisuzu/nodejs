@@ -1,13 +1,16 @@
-var fs = require('fs');
+var mysql = require('mysql');
+var connection = require('./connection.js');
 var jsonUrl = './json/books.json';
 
 module.exports = function(request, response) {
-  fs.readFile(jsonUrl, function(error, data) {
-    if(error) {
-      console.log('[BOOKS] Error - '+error);
-      response.writeHead(404, {'Content-Type': 'text/html'});
-      return response.end('An inexpected error occurred.');
-    }
-    response.send(data);
+  connection.query('SELECT * FROM book', function(error, rows, fields) {
+    if(error) response.end(error);
+
+    var newBooksList = {livros: []};
+    rows.forEach(function(item, key) {
+      newBooksList.livros.push({ id: item.id, name: item.name, author: item.author });
+    });
+
+    response.send(JSON.stringify(newBooksList));
   });
 };
